@@ -1,5 +1,7 @@
 import User from "../schemas/user.js";
 import JWT from "jsonwebtoken";
+import Cart from "../schemas/cart.js";
+import mongoose from "mongoose";
 
 export const login = {
     validator:(req,res,next)=>{
@@ -85,16 +87,109 @@ export const signup = {
         }
         try{
 
-            await User.create(newUser)
+            const user = await User.create(newUser)
+
+            if(role === "BUYER"){
 
 
+            const cart = await Cart.create({
+                items:[],
+                user:user._doc._id
+            })
 
-
+            await User.findByIdAndUpdate(
+                user._doc._id,
+                {cart:cart._doc._id}
+                )
+            }
+            
 
             return res.status(200).send("User created successfully")
         }
         catch(e){
+            console.log(e);
             return res.status(500).send("User didn't created")
         }
+    }
+}
+
+
+export const editUser = {
+    validator:(req,res,next)=>{
+        if(req.currUser._id.toHexString() !== req.body.userId){
+            return res.status(400).send("you cant edit user details")
+
+        }
+        if(!req.body.userId){
+            return res.status(400).send("Pass userId in body")
+        }
+        if(!req.body.username || !req.body.email || !req.body.phone || !req.body.avatar ){
+            return res.status(400).send("Pass some information to update")
+        }
+        next()
+    },
+    controller:async(req,res)=>{
+        try{
+            const user = await User.findByIdAndUpdate(req.body.userId,{username:req.body.username ,email : req.body.email,phone :  req.body.phone,avatar:  req.body.avatar})
+
+            return res.send("User details updated successfully")
+        }
+        catch(e){
+            if(e.codeName === "DuplicateKey"){
+                return res.status(400).send("Username already exists")
+            }
+            return res.status(500).send(e)
+        }
+    }
+}
+
+export const addToCart = {
+    validator:(req,res,next)=>{
+        if(!req.body.productId || !req.body.qty){
+            return res.status(400).send("please pass product id and quantity ")
+        }
+
+        if(!mongoose.isValidObjectId(req.body.productId)){
+            return res.status(400).send("Please pass valid productId in query")
+        }
+        next()
+    },
+    controller:async(req,res)=>{
+
+        try{
+
+            const {productID,qty} = req.body;
+            const cart = await Cart.findByIdAndUpdate(req.currUser.cart,{$push:{items:{product:productID,qty}}})
+            return res.status(200).send(cart)
+        }
+        catch(e){
+            return res.status(500).send("product not added in cart")
+        }
+
+
+    }
+}
+
+export const updateCart = {
+    validator:(req,res,next)=>{
+        if(!req.body.productId || !req.body.qty){
+            return res.status(400).send("please pass product id and quantity ")
+        }
+
+        if(!mongoose.isValidObjectId(req.body.productId)){
+            return res.status(400).send("Please pass valid productId in query")
+        }
+        next()
+    },
+    controller:async(req,res)=>{
+        try{
+            const {productID,qty} = req.body;
+            const cart = await Cart.updateOne({_id:req.currUser.cart,"items.product":productID},{$set:{"items.$.qty":qty}})
+            return res.status(200).send(cart)   
+        }
+        catch(e){
+            return res.status(500).send("product not added in cart")
+        }
+
     }
 }

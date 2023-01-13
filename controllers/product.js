@@ -49,7 +49,7 @@ export const searchProduct = {
       
 
       const product = await Product.find(queryForSearch1)
-        .skip(page)
+        .skip(page*limit)
         .limit(limit);
 
       return res.status(200).send(product);
@@ -162,6 +162,71 @@ export const createProduct = {
     }
   },
 };
+
+
+export const updateProduct = {
+  validator: (req, res, next) => {
+    if (
+      !req.body._id ||
+      !req.body.name ||
+      !req.body.description ||
+      !req.body.price ||
+      ! req.body.type ||
+      ! req.body.category
+    ) {
+      return res
+        .status(400)
+        .send(
+          "Pass all information (name, description, type, price, category) to update"
+        );
+    }
+    if ((req.currUser.role !== "SELLER" || req.currUser.isBanned )) {
+      return res.status(400).send("You cant edit a product");
+    }
+
+    if(!req.currUser.products.find((x)=>x.toHexString() === req.body._id)){
+      return res.status(400).send("You are not the seller of this product")
+    }
+
+
+
+    next()
+  },
+  controller: async (req, res) => {
+    
+
+
+
+    try {
+      const findProduct = await Product.findById(req.body._id);
+
+      if (!findProduct) {
+        return res.status(401).send("Product not found");
+      }
+      const updateProduct = await Product.findByIdAndUpdate(
+        req.body._id,
+        {
+          name:req.body.name,
+          description:req.body.description,
+          price:req.body.price,
+          type:req.body.type,
+          category:req.body.category,
+        },
+        { new: true }
+      );
+
+      return res.status(200).send("Product Updation Successful");
+    } catch (e) {
+      return res.status(500).send("Product updation failed");
+    }
+
+
+
+
+
+
+  }
+}
 
 
 export const deleteProductById = {
