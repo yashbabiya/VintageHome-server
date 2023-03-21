@@ -5,12 +5,22 @@ import user from "./routes/user.js";
 import product from "./routes/product.js";
 import admin from "./routes/admin.js"
 import cookieParser from "cookie-parser";
-
+import cors from "cors"
 import bodyParser from "body-parser";
 const app = express()
 dotenv.config()
-
-
+var whitelist = ['http://localhost:3000', /** other domains if any */ ]
+var corsOptions = {
+  credentials: true,
+  origin: function(origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+app.use(cors(corsOptions))
 app.use(cookieParser());
 app.use(bodyParser.json())
 

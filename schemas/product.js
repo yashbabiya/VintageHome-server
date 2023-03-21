@@ -6,7 +6,6 @@ const ProductSchema = Mongoose.Schema({
    name:{
     type:String,
     required:true,
-    
    },
    description:{
     type:String,
@@ -27,7 +26,7 @@ const ProductSchema = Mongoose.Schema({
    },
    category:{
     type:String,
-    enum:["comics","history","sports","autographs","toys","coins","paintings","other","paintings","photography","sculptures"],
+    enum:["comics","history","sports","autographs","toys","coins","paintings","other","clocks","furniture","photography","sculptures"],
    },
    price:{
     type:Number,

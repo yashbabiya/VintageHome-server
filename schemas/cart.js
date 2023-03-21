@@ -17,6 +17,7 @@ const CartSchema = Mongoose.Schema(
     ],
     user: {
         type:ObjectId,
+        ref:"User",
         required:true
     },
     seller:{

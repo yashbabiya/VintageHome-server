@@ -51,7 +51,6 @@ export const searchProduct = {
       const product = await Product.find(queryForSearch1)
         .skip(page*limit)
         .limit(limit);
-
       return res.status(200).send(product);
     } catch (e) {
         console.log(e);
@@ -137,7 +136,7 @@ export const createProduct = {
   },
   controller: async (req, res) => {
     try {
-      const { name, description, category, price, type, img } = req.body;
+      const { name, description, category, price, type, imgs } = req.body;
 
       const newProduct = {
         name,
@@ -147,6 +146,9 @@ export const createProduct = {
         price,
         type,
       };
+      if(imgs){
+        newProduct["imgs"]=imgs
+      }
 
 
 
@@ -172,12 +174,13 @@ export const updateProduct = {
       !req.body.description ||
       !req.body.price ||
       ! req.body.type ||
-      ! req.body.category
+      ! req.body.category ||
+      !req.body.imgs
     ) {
       return res
         .status(400)
         .send(
-          "Pass all information (name, description, type, price, category) to update"
+          "Pass all information (name, description, type, price, category, imgs) to update"
         );
     }
     if ((req.currUser.role !== "SELLER" || req.currUser.isBanned )) {
@@ -211,6 +214,7 @@ export const updateProduct = {
           price:req.body.price,
           type:req.body.type,
           category:req.body.category,
+          imgs:req.body.imgs
         },
         { new: true }
       );

@@ -8,6 +8,12 @@ const UserSchema = Mongoose.Schema({
     required:true,
     unique:true
    },
+   firstname:{
+    type:String
+   },
+   lastname:{
+    type:String
+   },
    password:{
     type:String,
     required:true
@@ -25,13 +31,26 @@ const UserSchema = Mongoose.Schema({
     type:String,
     required:true,
    },
+   address:{
+    type:String
+   },
+   city:{
+    type:String
+   },
+   state:{
+    type:String
+   },
+   pincode:{
+    type:Number
+   },
    role:{
     type:String,
     enum:["BUYER","ADMIN","SELLER"],
     required:true,
    },
    cart:{
-    type:ObjectId
+    type:ObjectId,
+    ref:"cart"
    },
    deals:{
     type:Array

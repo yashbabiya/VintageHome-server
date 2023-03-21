@@ -14,7 +14,7 @@ export const login = {
         try{
             const {username,password,role} = req.body
 
-            const user = await User.findOne({username,password,role})
+            const user = await User.findOne({username,password,role}).populate("cart")
 
             if(!user){
                 return res.status(400).send("invalid username or password") // if username-password pair isn't exists
@@ -47,6 +47,13 @@ export const login = {
             console.log("error",e);
             return res.status(500).send(e);
         }
+    }
+}
+
+export const logout = {
+    controller:(req,res)=>{
+        res.clearCookie('vintagetoken');
+        return res.send("logged Out")
     }
 }
 
@@ -158,11 +165,19 @@ export const addToCart = {
 
         try{
 
-            const {productID,qty} = req.body;
-            const cart = await Cart.findByIdAndUpdate(req.currUser.cart,{$push:{items:{product:productID,qty}}})
+            const {productId,qty} = req.body;
+            const entry = await Cart.findOne({_id:req.currUser.cart,'items.product':productId} ) 
+            let cart
+            if(entry){
+
+                cart = await Cart.updateOne({_id:req.currUser.cart,'items.product':productId},{"items.$.qty":qty>=0 ? qty :0})
+            }else{
+                cart = await Cart.findByIdAndUpdate(req.currUser.cart,{$push:{items:{product:productId,qty}}})
+            }
             return res.status(200).send(cart)
         }
         catch(e){
+            console.log("e",e)
             return res.status(500).send("product not added in cart")
         }
 

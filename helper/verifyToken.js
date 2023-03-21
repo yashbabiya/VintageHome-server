@@ -4,7 +4,7 @@ import User from '../schemas/user.js';
 const verifyToken = async (req, res, next) => {
     try {
         // const token = req.headers.cookie.split("=")[1];
-        const token = req.cookies.vintagetoken;
+        const token = req.cookies.vintagetoken; 
 
 
         if (token) {
