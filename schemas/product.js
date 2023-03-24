@@ -17,6 +17,7 @@ const ProductSchema = Mongoose.Schema({
    },
    seller:{
     type:ObjectId,
+    ref:"User",
     required:true,
    },
    type:{

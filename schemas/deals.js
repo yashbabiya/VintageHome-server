@@ -1,7 +1,7 @@
 import Mongoose from "mongoose";
 import { ObjectId } from "mongoose";
 
-const CartSchema = Mongoose.Schema(
+const DealSchema = Mongoose.Schema(
   {
     items: [
       {
@@ -20,10 +20,26 @@ const CartSchema = Mongoose.Schema(
         type:ObjectId,
         ref:"User",
         required:true
+    },
+    seller:{
+        type:ObjectId
+    },
+    paymentDate:{
+        type:Date,
+        default:new Date()
+    },
+    orderConfirmDate:{
+        type:Date
+    },
+    orderDepartedDate:{
+        type:Date
+    },
+    orderPlacedDate:{
+        type:Date
     }
   },
   { timestamps: true }
 );
 
-const Cart = Mongoose.model("cart", CartSchema);
-export default Cart;
+const Deal = Mongoose.model("deal", DealSchema);
+export default Deal;

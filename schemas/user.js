@@ -61,7 +61,8 @@ const UserSchema = Mongoose.Schema({
     }
    },
    products:{
-    type:Array
+    type:Array,
+    ref:"Product"
    },
    isBanned:{
     type:Boolean,

@@ -124,13 +124,6 @@ export const signup = {
 
 export const editUser = {
     validator:(req,res,next)=>{
-        if(req.currUser._id.toHexString() !== req.body.userId){
-            return res.status(400).send("you cant edit user details")
-
-        }
-        if(!req.body.userId){
-            return res.status(400).send("Pass userId in body")
-        }
         if(!req.body.username || !req.body.email || !req.body.phone || !req.body.avatar ){
             return res.status(400).send("Pass some information to update")
         }
@@ -138,7 +131,7 @@ export const editUser = {
     },
     controller:async(req,res)=>{
         try{
-            const user = await User.findByIdAndUpdate(req.body.userId,{username:req.body.username ,email : req.body.email,phone :  req.body.phone,avatar:  req.body.avatar})
+            const user = await User.findByIdAndUpdate(req.currUser._id,{username:req.body.username ,email : req.body.email,phone :  req.body.phone,avatar:  req.body.avatar})
 
             return res.send("User details updated successfully")
         }

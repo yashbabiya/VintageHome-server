@@ -1,7 +1,7 @@
 import JWT from 'jsonwebtoken';
 import User from '../schemas/user.js';
 
-const verifyToken = async (req, res, next) => {
+const verifySeller = async (req, res, next) => {
     try {
         // const token = req.headers.cookie.split("=")[1];
         const token = req.cookies.vintagetoken; 
@@ -12,12 +12,13 @@ const verifyToken = async (req, res, next) => {
             const verified = JWT.verify(token, process.env.JWT_SEC_KEY);
             // console.log(verified)
             const currUser = await User.findOne({
-                _id: verified.id
+                _id: verified.id,
+                role:"SELLER"
             });
 
 
             if (!currUser) {
-                return res.status(401).send("Unauthorized User")
+                return res.status(401).send("Unauthorized Seller")
             }
 
             req.token = token;
@@ -33,7 +34,7 @@ const verifyToken = async (req, res, next) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(500).send("Unauthorized User");
+        res.status(401).send("Unauthorized Seller");
     }
 }
-export default verifyToken
+export default verifySeller

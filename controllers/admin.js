@@ -29,9 +29,9 @@ export const banUser = {
 
 export const viewSellers = {
     validator:(req,res,next)=>{
-        if(!req.currUser.type === "ADMIN"){
-            return res.status(400).send("You are not a admin")
-        }
+        // if(!req.currUser.type === "ADMIN"){
+        //     return res.status(400).send("You are not a admin")
+        // }
         next()
     },
     controller:async(req,res)=>{

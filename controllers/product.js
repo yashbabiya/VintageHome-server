@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Product from "../schemas/product.js";
 import User from "../schemas/user.js";
+import Deal from "../schemas/deals.js";
+
 
 export const searchProduct = {
   validator: (req, res, next) => {
@@ -48,7 +50,7 @@ export const searchProduct = {
       }
       
 
-      const product = await Product.find(queryForSearch1)
+      const product = await Product.find(queryForSearch1).populate("seller")
         .skip(page*limit)
         .limit(limit);
       return res.status(200).send(product);
@@ -259,4 +261,71 @@ export const deleteProductById = {
             return res.status(500).send("")
         }
     }
+}
+
+export const placeOrder = {
+  validator:(req,res,next)=>{
+    if(!req.body.items){
+      return res.status(400).send("Pass items in body")
+    }
+    next();
+  },
+  controller:(req,res)=>{
+    try{
+      const {items} = req.body;
+      const orderForSellers = {}
+      items.forEach((item)=>{
+        const seller = item?.product.seller
+        console.log("deals",orderForSellers)
+        if(orderForSellers?.[seller?.toString()]?.length)
+        orderForSellers[seller.toString()].push(item);
+        else
+        orderForSellers[seller.toString()] = [item];
+      })
+      const sellers = Object.keys(orderForSellers);
+      sellers.forEach(async(seller)=>{
+        const deal = {
+          items:orderForSellers[seller],
+          user:req.currUser._id,
+          seller
+        }
+        await Deal.create(deal);
+      })
+      return res.send("success")
+    }
+    catch(e){
+      return res.status(500).send(e)
+    }
+  }
+}
+
+export const changeOrderStatus = {
+  validator:(req,res,next)=>{
+
+    next();
+  },
+  controller:(req,res)=>{
+    try{
+
+    }
+    catch(e){
+      return res.status(500).send(e)
+    }
+  }
+}
+
+export const getMyOrders = {
+  validator:(req,res,next)=>{
+
+    next();
+  },
+  controller:async(req,res)=>{
+    try{
+      const orders = await Deal.find({$or:[{user:req.currUser._id},{seller:req.currUser._id}]}).populate("items.product")
+      return res.send(orders)
+    }
+    catch(e){
+      return res.status(500).send(e)
+    }
+  }
 }
