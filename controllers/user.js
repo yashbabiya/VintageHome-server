@@ -14,11 +14,11 @@ export const login = {
         try{
             const {username,password,role} = req.body
 
-            const user = await User.findOne({username,password,role}).populate("cart")
-
+            const user = await User.findOne({username,password,role}).populate({path:"cart", strictPopulate: false}).populate({path:"cart.items.product", strictPopulate: false})
             if(!user){
                 return res.status(400).send("invalid username or password") // if username-password pair isn't exists
             }
+            const cartData = await Cart.findById(user.cart).populate("items.product");
 
 
             const accessToken = JWT.sign(
@@ -40,7 +40,8 @@ export const login = {
                                                   
             return res.status(200).json({
                 accessToken,
-                ...userDataWithoutPassword
+                ...userDataWithoutPassword,
+                cart:cartData
             })
         }
         catch(e){
@@ -152,7 +153,7 @@ export const editUser = {
 
 export const addToCart = {
     validator:(req,res,next)=>{
-        if(!req.body.productId || !req.body.qty){
+        if(!req.body.productId || !(req.body.qty>=0)){
             return res.status(400).send("please pass product id and quantity ")
         }
 
@@ -182,6 +183,22 @@ export const addToCart = {
         }
 
 
+    }
+}
+
+export const getCart = {
+    validator:(req,res,next)=>{
+        next()
+    },
+    controller:async(req,res)=>{
+        try{
+            const data = await Cart.findById(req.currUser.cart).populate("items.product");
+            
+            return res.status(200).send(data.items.filter(itm=>itm.qty>0))
+        }
+        catch(e){
+            return res.status(500).send(e)
+        }
     }
 }
 

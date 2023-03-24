@@ -7,6 +7,7 @@ const CartSchema = Mongoose.Schema(
       {
         product: {
           type: ObjectId,
+          ref:"Product",
           required: true,
         },
         qty: {
