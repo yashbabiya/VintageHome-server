@@ -22,7 +22,8 @@ const DealSchema = Mongoose.Schema(
         required:true
     },
     seller:{
-        type:ObjectId
+        type:ObjectId,
+        ref:"User"
     },
     paymentDate:{
         type:Date,
@@ -36,6 +37,9 @@ const DealSchema = Mongoose.Schema(
     },
     orderPlacedDate:{
         type:Date
+    },
+    rejectDate:{
+      type:Date
     }
   },
   { timestamps: true }

@@ -12,7 +12,11 @@ export const searchProduct = {
     try {
 
 
-      let { page, limit, keyword, category, type} = req.query;
+      let { page, limit, keyword, category, type, seller} = req.query;
+
+      if(!seller){
+        seller = ""
+      }
 
       if (!keyword) {
         keyword = "";
@@ -48,9 +52,18 @@ export const searchProduct = {
             type:type
         })
       }
+
+      if(seller){
+        queryForSearch1.$and.push({
+          seller:seller
+        })
+      }
+      queryForSearch1.$and.push({
+        isDeleted:false 
+      })
       
 
-      const product = await Product.find(queryForSearch1).populate("seller")
+      const product = await Product.find(queryForSearch1).populate("seller").sort({_id:-1})
         .skip(page*limit)
         .limit(limit);
       return res.status(200).send(product);
@@ -75,7 +88,7 @@ export const getAllProduct = {
       
             
       
-            const product = await Product.find({})
+            const product = await Product.find({isDeleted:false}).sort({_id:-1}).populate("seller")
               .skip(page)
               .limit(limit);
       
@@ -138,7 +151,7 @@ export const createProduct = {
   },
   controller: async (req, res) => {
     try {
-      const { name, description, category, price, type, imgs } = req.body;
+      const { name, description, category, price, type, imgs, doc } = req.body;
 
       const newProduct = {
         name,
@@ -147,6 +160,7 @@ export const createProduct = {
         category,
         price,
         type,
+        doc:doc ?? ""
       };
       if(imgs){
         newProduct["imgs"]=imgs
@@ -253,8 +267,7 @@ export const deleteProductById = {
     controller:async(req,res)=>{
         try{
             const {prodId} = req.query
-            await User.findByIdAndUpdate(req.currUser._id,{$pull:{products:mongoose.Types.ObjectId( prodId)}})
-            await Product.findByIdAndDelete(prodId)
+            await Product.findByIdAndUpdate(prodId,{isDeleted:true})
             return res.status(200).send("Product deleted successfully")
         }
         catch(e){
@@ -275,8 +288,7 @@ export const placeOrder = {
       const {items} = req.body;
       const orderForSellers = {}
       items.forEach((item)=>{
-        const seller = item?.product.seller
-        console.log("deals",orderForSellers)
+        const seller = item?.product.seller?._id || item.product.seller
         if(orderForSellers?.[seller?.toString()]?.length)
         orderForSellers[seller.toString()].push(item);
         else
@@ -301,12 +313,36 @@ export const placeOrder = {
 
 export const changeOrderStatus = {
   validator:(req,res,next)=>{
-
+    if(!req.body.deal){
+      return res.status(400).send("Please pass all details")
+    }
     next();
   },
-  controller:(req,res)=>{
+  controller:async(req,res)=>{
     try{
-
+      const {status,reject,deal} = req.body;
+      if(reject){
+        await Deal.findByIdAndUpdate(deal,{rejectDate:new Date()});
+      }
+      else{
+        const order = await Deal.findById(deal).lean();
+        let updateObj = {}
+        if(status === "CONFIRM_ORDER"){
+          updateObj["orderConfirmDate"] = new Date();
+        }else if(status === "ORDER_SHIPPED"){
+          if(!order?.orderConfirmDate)
+          updateObj["orderConfirmDate"] = new Date();
+          updateObj["orderDepartedDate"] = new Date();
+        }else if(status === "ORDER_PLACED"){
+          if(!order?.orderConfirmDate)
+          updateObj["orderConfirmDate"] = new Date();
+          if(!order?.orderDepartedDate)
+          updateObj["orderDepartedDate"] = new Date();
+          updateObj["orderPlacedDate"] = new Date();
+        }
+        await Deal.findByIdAndUpdate(deal,updateObj);
+      }
+      return res.send("success")
     }
     catch(e){
       return res.status(500).send(e)
@@ -321,7 +357,7 @@ export const getMyOrders = {
   },
   controller:async(req,res)=>{
     try{
-      const orders = await Deal.find({$or:[{user:req.currUser._id},{seller:req.currUser._id}]}).populate("items.product")
+      const orders = await Deal.find({$or:[{user:req.currUser._id},{seller:req.currUser._id}]}).populate("items.product").populate("user").populate("seller").sort({_id:-1})
       return res.send(orders)
     }
     catch(e){

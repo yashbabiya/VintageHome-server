@@ -18,7 +18,9 @@ export const login = {
             if(!user){
                 return res.status(400).send("invalid username or password") // if username-password pair isn't exists
             }
-            const cartData = await Cart.findById(user.cart).populate("items.product");
+            let cartData;
+            if(user.role==="BUYER")
+             cartData = await Cart.findById(user.cart).populate("items.product");
 
 
             const accessToken = JWT.sign(
@@ -78,7 +80,7 @@ export const signup = {
         next()
     },
     controller:async(req,res) =>{
-        const {role,username,password,email,phone} = req.body
+        const {role,username,password,email,phone,avatar} = req.body
 
         const user = await User.findOne({$or:[{username,email}]})
 
@@ -87,7 +89,7 @@ export const signup = {
         }
 
         let newUser = {
-            role,username,password,email,phone
+            role,username,password,email,phone,avatar:avatar || "https://st3.depositphotos.com/6672868/13701/v/600/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
         }
 
         if(role === "SELLER"){

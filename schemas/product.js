@@ -15,6 +15,9 @@ const ProductSchema = Mongoose.Schema({
     type:String,
     default:"https://psediting.websites.co.in/obaju-turquoise/img/product-placeholder.png"
    },
+   doc:{
+      type:String,
+   },
    seller:{
     type:ObjectId,
     ref:"User",
@@ -40,6 +43,10 @@ const ProductSchema = Mongoose.Schema({
    isApproved:{
       type:Boolean,
     default:false
+   },
+   isDeleted:{
+      type:Boolean,
+      default:false
    }
 },{timestamps:true}
 )

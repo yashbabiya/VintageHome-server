@@ -11,7 +11,7 @@ router.delete('/delete',verifyToken,deleteProductById.validator,deleteProductByI
 router.put('/edit',verifyToken,updateProduct.validator,updateProduct.controller)
 router.get('/getById',getProductById.validator,getProductById.controller)
 router.post('/placeOrder',verifyToken,placeOrder.validator,placeOrder.controller)
-router.post('/changeOrderStatus',verifySeller,changeOrderStatus.validator,changeOrderStatus.controller)
+router.put('/changeOrderStatus',verifySeller,changeOrderStatus.validator,changeOrderStatus.controller)
 router.get('/getMyOrders',verifyToken,getMyOrders.validator,getMyOrders.controller)
 
 

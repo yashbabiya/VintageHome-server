@@ -9,10 +9,12 @@ import cors from "cors"
 import bodyParser from "body-parser";
 const app = express()
 dotenv.config()
-var whitelist = ['http://localhost:3000', /** other domains if any */ ]
+var whitelist = ['http://localhost:3000',/** other domains if any */ ]
 var corsOptions = {
   credentials: true,
-  origin: function(origin, callback) {
+  origin: 
+  // '*'
+  function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
