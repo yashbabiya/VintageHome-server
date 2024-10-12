@@ -9,7 +9,7 @@ import cors from "cors"
 import bodyParser from "body-parser";
 const app = express()
 dotenv.config()
-var whitelist = ['*'] 
+var whitelist = process.env.CORS_ORIGINS.split(',');
 var corsOptions = {
   credentials: true,
   origin: '*',
