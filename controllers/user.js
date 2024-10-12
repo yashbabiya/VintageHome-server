@@ -32,8 +32,10 @@ export const login = {
             );
 
 
-            res.cookie('vintagetoken', accessToken, { maxAge: 1000 * 60 * 60 * 24 * 3 // cookie will last for 3 day only
-                                                    , httpOnly: false 
+            res.cookie('vintagetoken', accessToken, { maxAge: 1000 * 60 * 60 * 24 * 3, // cookie will last for 3 day only
+                                                        httpOnly: true,
+                                                        secure: process.env.NODE_ENV === 'production',  // Secure in production
+                                                        sameSite: 'None',  // Required for cross-origin requests
                                                     }); // setting the cookie in request
 
 
