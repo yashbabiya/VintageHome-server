@@ -12,7 +12,7 @@ dotenv.config()
 var whitelist = process.env.CORS_ORIGINS.split(',');
 var corsOptions = {
   credentials: true,
-  origin: '*',
+  origin:
   // '*'
   function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
