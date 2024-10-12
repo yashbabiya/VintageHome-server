@@ -9,10 +9,10 @@ import cors from "cors"
 import bodyParser from "body-parser";
 const app = express()
 dotenv.config()
-var whitelist = ['http://localhost:3000',/** other domains if any */ ]
+var whitelist = ['*'] 
 var corsOptions = {
   credentials: true,
-  origin: 
+  origin: '*',
   // '*'
   function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -26,11 +26,12 @@ app.use(cors(corsOptions))
 app.use(cookieParser());
 app.use(bodyParser.json())
 
-
 app.use('/user',user)
 app.use('/product',product)
 app.use('/admin',admin)
-
+app.get('/', (req, res) => {
+  return res.send("OK")
+})
 
 
 
