@@ -48,6 +48,6 @@ mongoose.connect(process.env.DB_CONN, {
 }).catch((e)=>{
     console.log("🚫 Cannot connect to DB  🚫",e);
 })
-app.listen(5000,()=>{
-    console.log("App is running at port 5000 🚀 ... ");
+app.listen(process.env.PORT,()=>{
+    console.log(`App is running at port ${process.env.PORT} 🚀 ... `);
 })

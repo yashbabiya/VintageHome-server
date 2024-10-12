@@ -13,7 +13,7 @@ export const login = {
     controller:async(req,res)=>{
         try{
             const {username,password,role} = req.body
-
+            const allUsers = await User.find().lean()
             const user = await User.findOne({username,password,role}).populate({path:"cart", strictPopulate: false}).populate({path:"cart.items.product", strictPopulate: false})
             if(!user){
                 return res.status(400).send("invalid username or password") // if username-password pair isn't exists
@@ -74,9 +74,6 @@ export const signup = {
         if (req.body.username.length < 3) {
             return res.status(400).send("Username must be greater than 3 characters");
         }
-        if(req.body.role === "SELLER" && !req.body.bankAc){
-            return res.status(400).send("Please pass the bank account number")
-        }
         next()
     },
     controller:async(req,res) =>{
@@ -93,7 +90,7 @@ export const signup = {
         }
 
         if(role === "SELLER"){
-            newUser = { ...newUser, bankDetails:{accountno:req.body.bankAc}}
+            newUser = { ...newUser}
         }
         try{
 
